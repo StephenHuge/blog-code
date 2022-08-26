@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./orginal.css" />
+
+    <title>React App</title>
+</head>
+
+<body>
+    <div id="root">
+        <div class="todo-container">
+            <div class="todo-wrap">
+                <div class="todo-header">
+                    <input type="text" placeholder="请输入你的任务名称，按回车键确认" />
+                </div>
+                <ul class="todo-main">
+                    <li style='background-color:white'>
+                        <label>
+                            <input type="checkbox" checked=false />
+                            <span>吃饭</span>
+                        </label>
+                        <button class="btn btn-danger" style='display:block'>删除</button>
+                    </li>
+                    <li style='background-color:white'>
+                        <label>
+                            <input type="checkbox" checked=false />
+                            <span>睡觉</span>
+                        </label>
+                        <button class="btn btn-danger" style='display:block'>删除</button>
+                    </li>
+                    <li style='background-color:#ddd'>
+                        <label>
+                            <input type="checkbox"  />
+                            <span>打代码</span>
+                        </label>
+                        <button class="btn btn-danger" style='display:block'>删除</button>
+                    </li>
+                    <li style='background-color:white'>
+                        <label>
+                            <input type="checkbox" />
+                            <span>逛街</span>
+                        </label>
+                        <button class="btn btn-danger" style='display:block'>删除</button>
+                    </li>
+                </ul>
+                <div class="todo-footer">
+                    <label>
+                        <input type="checkbox" />
+                    </label>
+                    <span>
+                        <span>已完成2</span> / 全部3
+                    </span>
+                    <button class="btn btn-danger">清除已完成任务</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
