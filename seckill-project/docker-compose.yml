@@ -1,0 +1,67 @@
+version: '2'
+
+networks:
+  my-network:
+    driver: bridge
+
+services:
+  nginx_lbs:
+    container_name: nginx_lbs
+    image: 'nginx:latest'
+    ports:
+      - "8080:80"
+    volumes:
+      - './nginx.conf:/etc/nginx/nginx.conf:ro'
+    networks:
+      - my-network
+    depends_on:
+      - my_app_1
+      - my_app_2
+      - my_app_3
+      - redis
+    # debug mode https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration
+    command: [ nginx-debug, '-g', 'daemon off;' ]
+  redis:
+    container_name: redis_db
+    image: 'redis:latest'
+    # 使用expose关键字的话，同network的container可以访问，但是host机器访问不了
+    expose:
+      - 6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - my-network
+  my_app_1:
+    container_name: app_1
+    image: 'seckill_img'
+    # 使用port关键字的话，同network的container可以访问，host机器也可以访问
+    #    expose:
+    #      - "8080"
+    ports:
+      - "8081:8080"
+    networks:
+      - my-network
+  my_app_2:
+    container_name: app_2
+    image: 'seckill_img'
+    # 使用port关键字的话，同network的container可以访问，host机器也可以访问
+    #    expose:
+    #      - "8080"
+    ports:
+      - "8082:8080"
+    networks:
+      - my-network
+    depends_on:
+      - redis
+  my_app_3:
+    container_name: app_3
+    image: 'seckill_img'
+    # 使用port关键字的话，同network的container可以访问，host机器也可以访问
+    #    expose:
+    #      - "8080"
+    ports:
+      - "8083:8080"
+    networks:
+      - my-network
+    depends_on:
+      - redis
