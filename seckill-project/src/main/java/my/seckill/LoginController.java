@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.security.MD5Encoder;
+import org.apache.logging.log4j.util.Base64Util;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -28,13 +29,19 @@ public class LoginController {
     private UserService userService;
 
     @GetMapping("/user")
-    public ModelAndView userDetail(HttpServletRequest request) {
+    public ModelAndView userDetail(HttpSession session, HttpServletRequest request) {
         Optional<Cookie> loginUser = Arrays.stream(request.getCookies())
                 .filter(x -> x.getName().equals("login_user")).findFirst();
         if (loginUser.isEmpty()) {
             return new ModelAndView("login");
         }
         String value = loginUser.get().getValue();
+        String userSessionIdFromCookie = Base64Util.encode(value);
+        String userSessionIdFromSession = (String) session.getAttribute("user_session_id");
+        if (!Objects.equals(userSessionIdFromSession, userSessionIdFromCookie)) {
+            log.warn("No session mapping to user {} found!", value);
+            return new ModelAndView("login");
+        }
         ModelAndView modelAndView = new ModelAndView("user");
         modelAndView.addObject("name", value);
         return modelAndView;
@@ -60,7 +67,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public @ResponseBody String doLogin(@RequestBody LoginInfo loginInfo, HttpServletRequest request, HttpServletResponse response) {
+    public @ResponseBody String doLogin(@RequestBody LoginInfo loginInfo, HttpSession session, HttpServletResponse response) {
         if (loginInfo == null) {
             return "No login info found!";
         }
@@ -69,8 +76,7 @@ public class LoginController {
             return "Login failed!";
         }
         log.info(loginInfo.toString());
-        HttpSession session = request.getSession();
-        session.setAttribute("user_session_id", MD5Encoder.encode(loginInfo.user.getBytes()));
+        session.setAttribute("user_session_id", Base64Util.encode(loginInfo.user));
         Cookie cookie = new Cookie("login_user", loginInfo.user);
         cookie.setPath("/");
         cookie.setDomain("localhost");

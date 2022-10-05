@@ -1,25 +1,30 @@
 version: '2'
 
+# 构建自定义bridge网络，所有container都通过此网络进行通信
 networks:
   my-network:
     driver: bridge
 
 services:
+  # nginx服务，负责负载均衡
   nginx_lbs:
     container_name: nginx_lbs
     image: 'nginx:latest'
     ports:
       - "8080:80"
+    # 本地编写conf文件，对nginx进行配置
     volumes:
       - './nginx.conf:/etc/nginx/nginx.conf:ro'
     networks:
       - my-network
+    # 依赖于3个app和redis
     depends_on:
       - my_app_1
       - my_app_2
       - my_app_3
       - redis
     # debug mode https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration
+    # 开启debug模式
     command: [ nginx-debug, '-g', 'daemon off;' ]
   redis:
     container_name: redis_db
@@ -34,7 +39,8 @@ services:
   my_app_1:
     container_name: app_1
     image: 'seckill_img'
-    # 使用port关键字的话，同network的container可以访问，host机器也可以访问
+    # 使用ports关键字的话，同network的container可以访问，host机器也可以访问
+    # 此处使用ports而不是expose是为了方便debug
     #    expose:
     #      - "8080"
     ports:
@@ -44,7 +50,7 @@ services:
   my_app_2:
     container_name: app_2
     image: 'seckill_img'
-    # 使用port关键字的话，同network的container可以访问，host机器也可以访问
+    # 使用ports关键字的话，同network的container可以访问，host机器也可以访问
     #    expose:
     #      - "8080"
     ports:
@@ -56,7 +62,7 @@ services:
   my_app_3:
     container_name: app_3
     image: 'seckill_img'
-    # 使用port关键字的话，同network的container可以访问，host机器也可以访问
+    # 使用ports关键字的话，同network的container可以访问，host机器也可以访问
     #    expose:
     #      - "8080"
     ports:

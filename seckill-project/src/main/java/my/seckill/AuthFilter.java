@@ -34,8 +34,9 @@ public class AuthFilter implements Filter {
             return;
         }
         // 如果cookie为空，证明是第一次请求，那么肯定没登录;
-        // 如果登录成功后，会写入一个名叫login_user的cookie
-        boolean isUserLoggedIn = cookies != null && Arrays.stream(cookies).anyMatch(x -> x.getName().equals("login_user"));
+        // 如果登录成功后，会写入一个名叫login_user的cookie和名叫user_session_id的session
+        boolean isUserLoggedIn = cookies != null && Arrays.stream(cookies).anyMatch(x -> x.getName().equals("login_user"))
+                && request.getSession().getAttribute("user_session_id") != null;
         if ("/exit".equals(requestURI)) {
             // 包含两种情况：已经登录 / 其它页面退出登录或者登录超时
             // 如果已经登录而且要退出登录的话，调用对应业务逻辑
